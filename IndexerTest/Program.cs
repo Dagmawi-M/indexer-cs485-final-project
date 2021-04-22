@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Reflection;
 
 namespace IndexerTest
 {
@@ -11,7 +12,8 @@ namespace IndexerTest
     {
         static void Main(string[] args)
         {
-            string filename = @"C:\Users\Dagmawi\Documents\IndexerTest\test.txt";
+            string filename = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                @"../../Data/test.txt");
             string[,] index = Tokenize(filename);
             string[,] findex = GetRank(index);
             Console.WriteLine("WORD\t\tFREQUENCY\t\tRANK");
@@ -21,6 +23,7 @@ namespace IndexerTest
                     Console.Write(findex[i, j] + "\t\t");
                 Console.WriteLine();
             }
+            new TestClass();
 
         }
 
