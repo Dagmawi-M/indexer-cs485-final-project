@@ -14,6 +14,7 @@ namespace IndexerTest
         {
             string filename = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 @"../../Data/test.txt");
+            string content = File.ReadAllText(filename);
             string[,] index = Tokenize(filename);
             string[,] findex = GetRank(index);
             Console.WriteLine("WORD\t\tFREQUENCY\t\tRANK");
@@ -27,9 +28,9 @@ namespace IndexerTest
 
         }
 
-        static string[,] Tokenize(string filename)
+        static string[,] Tokenize(string content)
         {
-            string[] delimitedIndex = RemoveDelimiters(filename);
+            string[] delimitedIndex = RemoveDelimiters(content);
             string[] lowercaseIndex = SameCase(delimitedIndex);
             int[] freq = FrequencyOfWord(lowercaseIndex);
             string[] distinctlIndex = Distinctize(lowercaseIndex);
@@ -105,10 +106,10 @@ namespace IndexerTest
             return index.Distinct().ToArray();
         }
 
-        static string[] RemoveDelimiters(string filename)
+        static string[] RemoveDelimiters(string content)
         {
             char[] delims = { '.', '!', '?', ',', '(', ')', '\t', '\n', '\r', ' ' };
-            string[] words = File.ReadAllText(filename).Split(delims, StringSplitOptions.RemoveEmptyEntries);
+            string[] words = content.Split(delims, StringSplitOptions.RemoveEmptyEntries);
             List<string> list = new List<string>();
             foreach (string word in words)
             {
