@@ -14,6 +14,8 @@ namespace IndexerTest
         {
             string filename = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 @"../../Data/test.txt");
+
+           // string filename = "C:/c#/Dani.txt";
             string content = File.ReadAllText(filename);
             string[,] index = Tokenize(content);
             string[,] findex = GetRank(index);
@@ -24,16 +26,14 @@ namespace IndexerTest
                     Console.Write(findex[i, j] + "\t\t");
                 Console.WriteLine();
             }
-            new TestClass();
+           // new TestClass();
 
-        //    string StopwordRmvIndex = RemoveStopwords(content);
-
-            //Console.WriteLine(RemoveStopwords(string.Join("", index)));
+            string StopwordRmvIndex = RemoveStopwords(content);
 
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine();
-        //    Console.WriteLine(StopwordRmvIndex);
+            Console.WriteLine(StopwordRmvIndex);
             Console.ReadKey();
         }
 
