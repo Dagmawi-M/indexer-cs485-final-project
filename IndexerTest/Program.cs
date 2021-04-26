@@ -30,10 +30,13 @@ namespace IndexerTest
             Console.WriteLine("************************************************************");
             Console.WriteLine("WORD\t\tFREQUENCY\t\tRANK");
 
-            var SortedTokenizedindex = Tokenizedindex.OrderByDescending(x => x.Value);
-            foreach(var word in SortedTokenizedindex)
+            Dictionary<string, int> SortedTokenizedindex = Tokenizedindex.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            int[] ranks = GetRank(SortedTokenizedindex);
+            int idx = 0;
+            foreach (var word in SortedTokenizedindex)
             {
-                Console.WriteLine(word.Key + "\t\t" + word.Value);
+                Console.WriteLine(word.Key + "\t\t" + word.Value + "\t\t" + ranks[idx]);
+                idx++;
             }
 
 
@@ -52,11 +55,13 @@ namespace IndexerTest
             Console.WriteLine("Number of Index Terms : " + StopwordRmvIndex.Count());
             Console.WriteLine("************************************************************");
             Console.WriteLine("WORD\t\tFREQUENCY\t\tRANK");
-            var SortedStopwordRmvIndex = StopwordRmvIndex.OrderBy(x => x.Value);
-
+            Dictionary<string, int> SortedStopwordRmvIndex = StopwordRmvIndex.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            int[] ranksIndex = RankIndex(SortedTokenizedindex, SortedStopwordRmvIndex);
+            int idxR = 0;
             foreach (var word in SortedStopwordRmvIndex)
             {
-                Console.WriteLine(word.Key);
+                Console.WriteLine(word.Key +"\t\t" +ranksIndex[idxR]);
+                idxR++;
             } 
 
             Console.ReadKey();
@@ -207,63 +212,29 @@ namespace IndexerTest
             return list.ToArray();
         }
 
-        static string[,] GetRank(string[,] index)
+        static int[] GetRank(Dictionary<string,int> index)
         {
-            List<string[]> list = new List<string[]>();
-            for (int i = 0; i < index.GetLength(0); i++)
-            {
-                string[] temp = new string[index.GetLength(1)];
-                for (int n = 0; n < temp.Length; n++)
-                {
-                    temp[n] = index[i, n];
-                }
-                list.Add(temp);
-            }
-
-            list = list.OrderBy(x => double.Parse(x[1])).ToList<string[]>();
-      //      list = list.SkipWhile(c => c is null).ToList<string[]>();
-
-            string[,] finalIndex = new string[index.GetLength(0), 2];
-            int tmpi = index.GetLength(0) - 1;
-            // int tmpi = 0;
             int rank = 1;
+            int[] rankArray=new int[index.Count];
+            int idx = 0;
             int prev = 0;
-            //Console.WriteLine("\n" + "here");
-            foreach (string[] str in list)
+           foreach(KeyValuePair<string,int> val in index)
             {
-                //Console.WriteLine(str[0] + "\t" + str[1]);
-                if (str != null)
+                if(val.Value == prev)
                 {
-                    finalIndex[tmpi, 0] = str[0];
-                    finalIndex[tmpi, 1] = str[1];
-                    tmpi--;
-                    //tmpi++;
-                }
-            }
-            string[,] finalRankedIndex = new string[index.GetLength(0), 3];
-
-            for (int i = 0; i < index.GetLength(0); i++)
-            {
-                finalRankedIndex[i, 0] = finalIndex[i, 0];
-                finalRankedIndex[i, 1] = finalIndex[i, 1];
-                if (prev == 0)
-                {
-                    prev = Int32.Parse(finalRankedIndex[i, 1]);
-                    finalRankedIndex[i, 2] = rank.ToString();
-                }
-                else if (prev == Int32.Parse(finalRankedIndex[i, 1]))
-                {
-                    finalRankedIndex[i, 2] = rank.ToString();
+                    rankArray[idx] = rank;
+                    idx++;
                 }
                 else
                 {
-                    prev = Int32.Parse(finalRankedIndex[i, 1]);
+                    prev = val.Value;
+                    rankArray[idx] = rank;
                     rank++;
-                    finalRankedIndex[i, 2] = rank.ToString();
+                    idx++;
                 }
             }
 
-            return finalRankedIndex;
+            return rankArray;
 
         }
 
@@ -643,5 +614,24 @@ namespace IndexerTest
         { "yourself", true },
         { "yourselves", true }
     };
+        static int[] RankIndex(Dictionary<string, int> origDictionary, Dictionary<string, int> indexedDictionary)
+        {
+            int[] ranks = new int[indexedDictionary.Count];
+            int[] origRank = GetRank(origDictionary);
+            int idx = 0;
+            int cnt = 0;
+            foreach(KeyValuePair<string,int> val in origDictionary)
+            {
+                if (indexedDictionary.ContainsKey(val.Key))
+                {
+                    ranks[idx] = origRank[cnt];
+                    idx++;
+                }
+                cnt++;
+            }
+            return ranks;
+        }
     }
+
+ 
 }
