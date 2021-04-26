@@ -30,10 +30,10 @@ namespace IndexerTest
             Console.WriteLine("************************************************************");
             Console.WriteLine("WORD\t\tFREQUENCY\t\tRANK");
 
-            var SortedTokenizedindex = Tokenizedindex.OrderBy(x => x.Value);
+            var SortedTokenizedindex = Tokenizedindex.OrderByDescending(x => x.Value);
             foreach(var word in SortedTokenizedindex)
             {
-                Console.WriteLine(word.Key + "         " + word.Value);
+                Console.WriteLine(word.Key + "\t\t" + word.Value);
             }
 
 
