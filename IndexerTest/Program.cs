@@ -15,44 +15,114 @@ namespace IndexerTest
             string filename = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 @"../../Data/test.txt");
 
-           // string filename = "C:/c#/Dani.txt";
+         
+            // string filename = "C:/c#/Dani.txt";
             string content = File.ReadAllText(filename);
-            string[,] index = Tokenize(content);
-            string[,] findex = GetRank(index);
+            //string[,] index = Tokenize(content);
+
+            Dictionary < string, int> Tokenizedindex = Tokenize(content);
+            Dictionary<string, int> StopwordRmvIndex = RemoveStopwords(content);
+
+            // string[,] findex = GetRank(index);
+            Console.WriteLine("************************************************************");
+            Console.WriteLine("AFTER TOKENIZATION");
+            Console.WriteLine("Number of Index Terms : " + Tokenizedindex.Count());
+            Console.WriteLine("************************************************************");
             Console.WriteLine("WORD\t\tFREQUENCY\t\tRANK");
-            for (int i = 0; i < findex.GetLength(0); i++)
+
+            var SortedTokenizedindex = Tokenizedindex.OrderBy(x => x.Value);
+            foreach(var word in SortedTokenizedindex)
             {
-                for (int j = 0; j < findex.GetLength(1); j++)
-                    Console.Write(findex[i, j] + "\t\t");
-                Console.WriteLine();
+                Console.WriteLine(word.Key + "         " + word.Value);
             }
-           // new TestClass();
 
-            string StopwordRmvIndex = RemoveStopwords(content);
+
+            // for (int i = 0; i < findex.GetLength(0); i++)
+            // {
+            //     for (int j = 0; j < findex.GetLength(1); j++)
+            //         Console.Write(findex[i, j] + "\t\t");
+            //     Console.WriteLine();
+            // }
+
+            //// new TestClass();
 
             Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine(StopwordRmvIndex);
+            Console.WriteLine("************************************************************");
+            Console.WriteLine("AFTER STOPWORD REMOVAL");
+            Console.WriteLine("Number of Index Terms : " + StopwordRmvIndex.Count());
+            Console.WriteLine("************************************************************");
+            Console.WriteLine("WORD\t\tFREQUENCY\t\tRANK");
+            var SortedStopwordRmvIndex = StopwordRmvIndex.OrderBy(x => x.Value);
+
+            foreach (var word in SortedStopwordRmvIndex)
+            {
+                Console.WriteLine(word.Key);
+            } 
+
             Console.ReadKey();
         }
 
-        static string[,] Tokenize(string content)
+        static Dictionary<string, int> Tokenize(string content)
         {
             string[] delimitedIndex = RemoveDelimiters(content);
             string[] lowercaseIndex = SameCase(delimitedIndex);
-            int[] freq = FrequencyOfWord(lowercaseIndex);
-            string[] distinctlIndex = Distinctize(lowercaseIndex);
-            string[,] finalIndex = new string[freq.Length, 2];
 
-            for (int i = 0; i < freq.Length; i++)
+            //USing Dictionary (Trial)
+            Dictionary<string, int> dictionaryUse = new Dictionary<string, int>();
+
+            for (int i = 0; i < lowercaseIndex.Length; i++)
             {
-                finalIndex[i, 0] = distinctlIndex[i];
-                finalIndex[i, 1] = freq[i].ToString();
-
+                if (dictionaryUse.ContainsKey(lowercaseIndex[i]))
+                {
+                    dictionaryUse[lowercaseIndex[i]] = dictionaryUse[lowercaseIndex[i]] + 1;
+                }
+                else
+                {
+                    dictionaryUse.Add(lowercaseIndex[i], 1);
+                }
             }
-            return finalIndex;
+            Dictionary<string, int> ordered = new Dictionary<string, int>();
+         
+        
+            return dictionaryUse;// (x=>x.Value);
         }
+
+        //static string[,] Tokenize(string content)
+        //{
+        //    string[] delimitedIndex = RemoveDelimiters(content);
+        //    string[] lowercaseIndex = SameCase(delimitedIndex);
+
+        //    //USing Dictionary (Trial)
+        //    Dictionary<string, int> dictionaryUse = new Dictionary<string, int>();
+
+        //    for (int i = 0; i < lowercaseIndex.Length; i++)
+        //    {
+        //        if (dictionaryUse.ContainsKey(lowercaseIndex[i]))
+        //        {
+        //            dictionaryUse[lowercaseIndex[i]] = dictionaryUse[lowercaseIndex[i]] + 1;
+        //            //  Console.WriteLine(dictionaryUse["Abebe"]);
+        //        }
+        //        else
+        //        {
+        //            dictionaryUse.Add(lowercaseIndex[i], 1);
+        //        }
+        //    }
+
+        //  //  int[] freq = FrequencyOfWord(lowercaseIndex);
+        //   // string[] distinctlIndex = Distinctize(lowercaseIndex);
+
+
+
+        //    //string[,] finalIndex = new string[freq.Length, 2];
+
+        //    //for (int i = 0; i < freq.Length; i++)
+        //    //{
+        //    //    finalIndex[i, 0] = distinctlIndex[i];
+        //    //    finalIndex[i, 1] = freq[i].ToString();
+
+        //    //}
+        //    return finalIndex;
+        //}
 
         static int[] FrequencyOfWord(string[] index)
         {
@@ -198,44 +268,58 @@ namespace IndexerTest
         }
 
 
-        static string RemoveStopwords(string content)
+        //static string RemoveStopwords(string content)
+        //{
+        //    string[] delimitedIndex = RemoveDelimiters(content);      
+        //    string[] lowercaseIndex = SameCase(delimitedIndex); 
+        //    string[] distinctlIndex = Distinctize(lowercaseIndex);
+  
+        //    var found = new Dictionary<string, bool>();
+
+        //    StringBuilder builder = new StringBuilder();
+
+        //    foreach (string currentWord in distinctlIndex)
+        //    {
+
+        //        if (!_stops.ContainsKey(currentWord) &&  !found.ContainsKey(currentWord))
+        //        {
+        //            builder.Append(currentWord).Append(' ');
+        //            found.Add(currentWord, true);
+        //        }
+        //    }
+        //    return builder.ToString().Trim();
+        //    //  return builder;
+        //}
+
+        static  Dictionary<string, int> RemoveStopwords(string content)
         {
             string[] delimitedIndex = RemoveDelimiters(content);
-            // 1
-            // Split parameter into words
-
-
-
             string[] lowercaseIndex = SameCase(delimitedIndex);
-            //  int[] freq = FrequencyOfWord(lowercaseIndex);
             string[] distinctlIndex = Distinctize(lowercaseIndex);
-            // string[,] finalIndex = new string[freq.Length, 2];
 
-            // 2
-            // Allocate new dictionary to store found words
-            var found = new Dictionary<string, bool>();
-            // 3
-            // Store results in this StringBuilder
-            StringBuilder builder = new StringBuilder();
-            //
-            // Loop through all words
+            Dictionary<string, int> found = new Dictionary<string, int>();
+
+            //     StringBuilder builder = new StringBuilder();
+        
             foreach (string currentWord in distinctlIndex)
             {
 
-                if (!_stops.ContainsKey(currentWord) &&
-                    !found.ContainsKey(currentWord))
+                if (!_stops.ContainsKey(currentWord) && !found.ContainsKey(currentWord))
                 {
-                    builder.Append(currentWord).Append(' ');
-                    found.Add(currentWord, true);
+                    found.Add(currentWord, 1);
                 }
+               else if (!_stops.ContainsKey(currentWord) && found.ContainsKey(currentWord))
+                {
+                     //   found.(currentWord) = found(currentWord) + 1;
+                }
+
             }
 
-            return builder.ToString().Trim();
+
+            return found;
+            //return builder.ToString().Trim();
             //  return builder;
         }
-
-
-
 
 
 
